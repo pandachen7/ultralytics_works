@@ -128,17 +128,46 @@ Ubuntu的建議用tar的方式, 因為deb檔案根本就不知道裝到哪裡去
 使用方式同windows, 將上述的資料夾複製到對應的資料夾  
 
 # RoboFlow
-需要一組token才能夠使用畫框工具  
-基本上到官網註冊就能使用, 包含自動畫框, 影像argument, 訓練等等  
-但是免費版的credit很少, 自動畫框跟推測只有1000/month, 訓練只有3/month  
+可自動畫框, 影像argument, 訓練等等  
+基本上到官網註冊就能使用  
+免費版的credit很少, 自動畫框跟推測只有1000/month, 訓練只有3/month   
+但付費版的自動畫框跟推測也只有10000/month, 訓練10/month  
+如果要再加購的話, 一個框約0.75~0.9台幣[2024.4.10當下]  
+
+## RoboFlow - Export
+要注意的是, 有的dataset的設定檔 data.yaml會多一個path  
+導致訓練時被引導到錯誤的路徑, 因此必須把路徑註解掉, 例如將  
+`path: ../datasets/roboflow`  
+變為  
+`# path: ../datasets/roboflow`  
+這樣, 訓練者如ultralytics就會去抓相對路徑而不被誤導
 
 # ultralytics的yolov8, v9
 install them as tools  
 ```
-pip install ultralytics==8.1.41
+pip install ultralytics==8.1.43
 ```
 
-# 訓練硬體
+## ultralytic - 設定
+有時候訓練過後, 搬移或改名datasets路徑會導致設定檔的路徑不同步, 導致無法訓練  
+這時可到  
+`/home/${USER}/.config/Ultralytics/settings.yaml`  
+或是  
+`C:\Users\[USER_ID]\AppData\Roaming\Ultralytics`  
+然後將內容的`datasets_dir`, 指定到特定資料夾路徑, 建議直接使用絕對路徑  
+幸運的是win版的路徑用斜線`/`也是可行的, 不然python容易把`\\`視為跳脫符號
+
+## ultralytic - 多線程運作錯誤
+比較奇妙的情形, 當簡單的訓練語法的main沒有加上 `if **name** == "__main__":`(if-clause protection)  
+就會導致以下錯誤  
+```
+An attempt has been made to start a new process before the
+current process has finished its bootstrapping phase.
+```
+看了一下console居然跑了兩個net, 很神奇的是加了if-clause protection之後, 就不會再出現錯誤  
+但有些電腦似乎沒有這種限制, 目前是在RTX2070 SUPER有看到
+
+# 訓練硬體規格需求
 你可以選其中一種size的model: [yolov8n, yolov8s, yolov8m, yolov8l, yolov8x]  
 RTX2060-6GB only can use yolov8n and yolov8s with batch=16, but yolov8m with batch=8  
 看起來在batch=8時:  
@@ -147,3 +176,5 @@ RTX2060-6GB only can use yolov8n and yolov8s with batch=16, but yolov8m with bat
 
 batch=16時:  
  - yolov8x會用掉13.3GB  
+
+可作為硬體規格以及需求參考
