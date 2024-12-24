@@ -28,7 +28,7 @@ Build cuda_12.4.r12.4/compiler.33961263_0
 
 ## 關於CUDA
 <details>
-<summary>========================== 其他版本的安裝紀錄, 純參考可跳過 ==========================</summary>
+<summary>================== 其他版本的安裝紀錄, 純參考可跳過 ==================</summary>
 [2024.4.3] 紀錄, 主要是driver 470->550的步驟, 可跳過  <br>
 google看看有沒有較新的安裝方式, 畢竟網路上兩年前的安裝方式已經不能用了, 且ppa(Personal Package Archives)容易加入錯誤的路徑, 導致apt update都會出現ERR (例如NO_PUBKEY A4B469963BF863CC)  <br>
 即便是官網的network安裝方式, 似乎也沒有針對舊的CUDA版本做路徑更新, 例如key的版本  <br>
