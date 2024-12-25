@@ -14,10 +14,32 @@ train開頭的都是用來訓練model的
 Windows版應該已經能夠自動更新nvidia driver  
 Ubuntu版需要先用指令下載安裝特定版本的nvidia driver  
 之後使用`nvidia-smi`可看到對應的版本, e.g.  
-![](./assets/nvidia_cuda.png)  
+```bash
+PS C:\ws\ultralytics_works> nvidia-smi
+Wed Dec 25 22:08:15 2024
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 551.86                 Driver Version: 551.86         CUDA Version: 12.4     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                     TCC/WDDM  | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 4060 ...  WDDM  |   00000000:01:00.0 Off |                  N/A |
+| N/A   41C    P8              3W /   60W |       0MiB /   8188MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+```
 注意這個畫面並不代表你已經安裝了CUDA, 你必須用`nvcc --version`來看看是否已安裝CUDA以及其版本, 例如  
 ```bash
-PS C:\ws\ultralytics_work> nvcc --version
+PS C:\ws\ultralytics_works> nvcc --version
 nvcc: NVIDIA (R) Cuda compiler driver
 Copyright (c) 2005-2024 NVIDIA Corporation
 Built on Tue_Feb_27_16:28:36_Pacific_Standard_Time_2024
