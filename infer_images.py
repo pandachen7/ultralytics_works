@@ -4,7 +4,7 @@ from ultralytics import YOLO
 
 home_dir = os.path.expanduser("~")
 
-model = YOLO(f"./runs/detect/train/weights/epoch350.pt")
+model = YOLO("./runs/detect/train/weights/epoch350.pt")
 
 result = model.predict(
     source=f"{home_dir}/datasets/raw_rpi",
@@ -12,7 +12,6 @@ result = model.predict(
     iou=0.5,
     device="cpu",
     # agnostic_nms=True,
-
     save=True,
     mode="predict",
 )

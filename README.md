@@ -1,21 +1,22 @@
-強烈建議以python venv來安裝  
-以免跟其他專案的python pkg相衝突, e.g. ROS的pandas  
+建議用uv或python venv來安裝  
+以免跟其他專案的python pkg(python package, 即lib)相衝突  
 不同的環境也容易與ultralytics衝突  
 
 # 專案中的檔案名稱
 infer開頭的都是可以測試(預測, 偵測)  
 train開頭的都是用來訓練model的  
+這邊都只是範例, 詳細你可以任意改, 達到你的目的即可
 
 # 準備環境 - nvidia
 你需要nvidia的顯卡, 安裝nvidia driver(驅動)  
-並視情況安裝CUDA(平行運算平台以及API)以及cuDNN(lib)  
-但如果你只想使用pytorch, 或是你想用anaconda, 那麼CUDA或cuDNN可以先不用裝  
+如果你只想使用pytorch, 或是你想用anaconda, 那麼CUDA(平行運算平台以及API)以及cuDNN(lib) 就不用裝  
+ultralytics預設用pytorch, 所以要先準備好環境
 
 Windows版應該已經能夠自動更新nvidia driver  
-Ubuntu版需要先用指令下載安裝特定版本的nvidia driver  
+Ubuntu版有時需要用指令下載安裝特定版本的nvidia driver  
 之後使用`nvidia-smi`可看到對應的版本, e.g.  
 ```bash
-PS C:\ws\ultralytics_works> nvidia-smi
+> nvidia-smi
 Wed Dec 25 22:08:15 2024
 +-----------------------------------------------------------------------------------------+
 | NVIDIA-SMI 551.86                 Driver Version: 551.86         CUDA Version: 12.4     |
@@ -37,133 +38,29 @@ Wed Dec 25 22:08:15 2024
 |  No running processes found                                                             |
 +-----------------------------------------------------------------------------------------+
 ```
-注意這個畫面並不代表你已經安裝了CUDA, 你必須用`nvcc --version`來看看是否已安裝CUDA以及其版本, 例如  
-```bash
-PS C:\ws\ultralytics_works> nvcc --version
-nvcc: NVIDIA (R) Cuda compiler driver
-Copyright (c) 2005-2024 NVIDIA Corporation
-Built on Tue_Feb_27_16:28:36_Pacific_Standard_Time_2024
-Cuda compilation tools, release 12.4, V12.4.99
-Build cuda_12.4.r12.4/compiler.33961263_0
-```
-上面nvcc跟你說你現在有12.4, 才算是真的有  
+建議windows使用 `Power Shell` 或 `git bash`, 純文字CLI介面的支援度較高
 
-## 關於CUDA
-<details>
-<summary>================== 其他版本的安裝紀錄, 純參考可跳過 ==================</summary>
-[2024.4.3] 紀錄, 主要是driver 470->550的步驟, 可跳過  <br>
-google看看有沒有較新的安裝方式, 畢竟網路上兩年前的安裝方式已經不能用了, 且ppa(Personal Package Archives)容易加入錯誤的路徑, 導致apt update都會出現ERR (例如NO_PUBKEY A4B469963BF863CC)  <br>
-即便是官網的network安裝方式, 似乎也沒有針對舊的CUDA版本做路徑更新, 例如key的版本  <br>
-注意不要安裝這個版本  <br>
+## uv - python 虛擬環境
+選擇一種版本來使用, 網路上或許有更新的安裝方式, 請先google `uv install`
+```sh
+# ubuntu
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-~~`sudo apt install nvidia-cuda-toolkit`~~
+# windows
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+然後到一個ws下開創一個專案資料夾, 例如`my_project`, 專案路徑就以 `./ws/my_project` 為主  
+```sh
+uv python install 3.12
+uv venv --python 3.12
 
-因為這個版本只有CUDA 10.1版, 如下  
-```
-nvcc: NVIDIA (R) Cuda compiler driver
-Copyright (c) 2005-2019 NVIDIA Corporation
-Built on Sun_Jul_28_19:07:16_PDT_2019
-Cuda compilation tools, release 10.1, V10.1.243
-```
+# ubuntu
+source .venv/bin/activate
 
-以下是直接用指令安裝local版, 似乎是可使用的  
+# windows
+./.venv/bin/activate.bat
 ```
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
-sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
-wget https://developer.download.nvidia.com/compute/cuda/11.4.4/local_installers/cuda-repo-ubuntu2004-11-4-local_11.4.4-470.82.01-1_amd64.deb
-sudo dpkg -i cuda-repo-ubuntu2004-11-4-local_11.4.4-470.82.01-1_amd64.deb
-sudo apt-key add /var/cuda-repo-ubuntu2004-11-4-local/7fa2af80.pub
-sudo apt-get update
-sudo apt-get -y install cuda
-```
-但我的ubuntu在apt install安裝時秀出了需要更高級的CUDA版本, 所以只好裝更新的CUDA  
-```
-The following packages have unmet dependencies:
- cuda : Depends: cuda-12-4 (>= 12.4.0) but it is not going to be installed
-E: Unable to correct problems, you have held broken packages.
-```
-
-以下是ubuntu 20.04安裝CUDA 12.4版  
-```
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
-sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
-wget https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda-repo-ubuntu2004-12-4-local_12.4.0-550.54.14-1_amd64.deb
-sudo dpkg -i cuda-repo-ubuntu2004-12-4-local_12.4.0-550.54.14-1_amd64.deb
-sudo cp /var/cuda-repo-ubuntu2004-12-4-local/cuda-*-keyring.gpg /usr/share/keyrings/
-sudo apt-get update
-sudo apt-get -y install cuda-toolkit-12-4
-```
-但系統感覺怪怪的<br>
-只好直接升級nvidia driver 470->550  
-```
-sudo ubuntu-drivers list
-sudo ubuntu-drivers install nvidia:525
-```
-指令無法安裝, 只好用Software & Updates來裝  
-![](./assets/nvidia_driver.png)  
-
-然後搭配上述的CUDA 12.4  <br>
-但Path沒有幫忙設定, 所以自行加上  <br>
-```
-export PATH="/usr/local/cuda-12.4/bin:$PATH"
-export LD_LIBRARY_PATH="/usr/local/cuda-12.4/lib64:$LD_LIBRARY_PATH"
-sudo ln -s /usr/local/cuda /usr/local/cuda-12.4
-```
-建議加在bashrc, 開terminal都會自動加上  <br>
-
-之後你鍵入`nvcc --version`應該會出現如下面的訊息  <br>
-```
-nvcc: NVIDIA (R) Cuda compiler driver
-Copyright (c) 2005-2024 NVIDIA Corporation
-Built on Tue_Feb_27_16:19:38_PST_2024
-Cuda compilation tools, release 12.4, V12.4.99
-Build cuda_12.4.r12.4/compiler.33961263_0
-```
-nvidia的軟體安裝本身就是一場災難  
-==================^其他版本的安裝紀錄==================<br>
-</details>
-
-tl;dr  
-在Ubuntu的Software & Updates直接安裝nvidia driver 550  
-然後用nvidia官網的CUDA 12.4的local安裝方式  
-```
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
-sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
-wget https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda-repo-ubuntu2004-12-4-local_12.4.0-550.54.14-1_amd64.deb
-sudo dpkg -i cuda-repo-ubuntu2004-12-4-local_12.4.0-550.54.14-1_amd64.deb
-sudo cp /var/cuda-repo-ubuntu2004-12-4-local/cuda-*-keyring.gpg /usr/share/keyrings/
-sudo apt-get update
-sudo apt-get -y install cuda-toolkit-12-4
-```
-登錄Path到bashrc (注意CUDA版本)  
-```
-sudo ln -s /usr/local/cuda /usr/local/cuda-12.4
-export PATH="/usr/local/cuda/bin:$PATH"
-export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
-```
-鍵入`nvcc --version`應該會出現如下面的訊息  
-```
-nvcc: NVIDIA (R) Cuda compiler driver
-Copyright (c) 2005-2024 NVIDIA Corporation
-Built on Tue_Feb_27_16:19:38_PST_2024
-Cuda compilation tools, release 12.4, V12.4.99
-Build cuda_12.4.r12.4/compiler.33961263_0
-```
-
-## cuDNN
-這個比較單純, 只要到官網登入帳號, 下載對應版本並放在相對資料夾即可, e.g.  
-```
-把 C:\Users<username>\Downloads\cuda\bin 資料夾內檔案複製到
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\bin
-
-把 C:\Users<username>\Downloads\cuda\include 資料夾內檔案複製到
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\include
-
-把 C:\Users<username>\Downloads\cuda\lib\x64 資料夾內檔案複製到
-C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\lib\x64
-```
-Ubuntu的建議用tar的方式, 因為deb檔案根本就不知道裝到哪裡去  
-使用方式同windows, 將上述的資料夾複製到對應的資料夾  
+在這裡你就已經進入venv的虛擬環境了, 所有安裝的python pkg都只會影響這個venv
 
 # 準備訓練影像資料
 ## RoboFlow
@@ -190,33 +87,12 @@ pip install ruamel.yaml
 注意bool中的True/False會變成小寫, 但不影響ruamel.yaml的使用
 
 # ultralytics
-可用yolo v3 ~ v11 [2024.12.24當下]  
-有torch, 就要先裝gpu版本, 以免ultralytics因相依直接裝cpu版本的  
-下面的torch是配合CUDA12.4版的  
-強烈建議到 `https://pytorch.org/get-started/locally/` 選擇要下載安裝的方式, **因為指令都會變**  
+可用yolo v3 ~ v12, 26 [2026.3.5 當下]  
+有Nvidia顯卡, 就要先裝gpu版本, 以免ultralytics因相依直接裝cpu版本的  
+到 `https://pytorch.org/get-started/locally/` 選擇要下載安裝的方式  
 注意新的ultralytics版本才能使用新的yolo版, 例如2024.5 yolov10才推出, 就要下載更之後的 ultralytics  
-```
-pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu124
-pip install ultralytics
-pip install shapely  # 用來計算line, polygon等幾何運算
-```
-
-## tkinter (GUI)
-有些module可能會用到GUI, 但有時python版本沒有包含, 得自行安裝
-```
-sudo apt-get install python3.10-tk
-```
-注意如果只指定`python3-tk`, 則可能會安裝到預設的python版 (例如ubuntu 20.04就會裝到python3.8)
-
-如果venv連不到tkinter的路徑, 假設使用的是python3.10, 則
-```
-cd ~/.virtualenvs/cv/lib/python3.10/
-```
-再把tkinter連起來
-```
-ln -s /usr/lib/python3.10/tkinter tkinter
-```
-但就是建議不要再用這個GUI了, 不如用PyQt  
+如果不知道如何安裝, 請參考我的筆記  
+[PyTorch安裝方式](https://www.notion.so/PyTorch-30936ed5d3d680ceb0e1ed1dc8c2c7bf?source=copy_link)
 
 ## ultralytics - 設定
 有時候訓練過後, 搬移或改名datasets路徑會導致設定檔的路徑不同步, 導致無法訓練  
@@ -238,13 +114,19 @@ current process has finished its bootstrapping phase.
 但有些電腦似乎沒有這種限制, 目前是在RTX2070 SUPER有看到  
 
 ## ultralytics - 訓練硬體規格需求
-你可以選其中一種size的model: [yolov8n, yolov8s, yolov8m, yolov8l, yolov8x]  
-RTX2060-6GB only can use yolov8n and yolov8s with batch=16, but yolov8m with batch=8  
+你可以選其中一種size的model: [yolo26n, yolo26s, yolo26m, yolo26l, yolo26x]  
+RTX2060-6GB only can use yolo26n and yolo26s with batch=16, but yolo26m with batch=8  
 看起來在batch=8時:  
- - yolov8m, 會用掉4GB左右的記憶體    
- - yolov8l, 會用掉5.6GB左右的記憶體  
+ - yolo26m, 會用掉4GB左右的記憶體    
+ - yolo26l, 會用掉5.6GB左右的記憶體  
 
 batch=16時:  
- - yolov8x會用掉13.3GB  
+ - yolo26x會用掉13.3GB  
 
-可作為硬體規格以及需求參考
+可作為硬體規格以及需求參考  
+如果訓練過程中記憶體不足OOM Killer(Out of Memory Killer), 那就降低batch試試  
+
+更多細節請參考各個不同的train**.py檔案
+
+# 舊資訊
+[Nvidia安裝版本](./doc/old_info.md)
