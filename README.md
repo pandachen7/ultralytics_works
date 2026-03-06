@@ -1,3 +1,11 @@
+本專案用於ultralytics的快速說明與建構方式
+
+ultralytics作為框架, 主要就是可以用來訓練跟推測  
+只要dataset的圖片很多樣化, 就能夠訓練出不錯的偵測器  
+然後再透過infer的方式來推測並定位目標物的位置與分類  
+
+ultralytics有很多種task, 通常都是yolo model, 其中最常用的就是Object Detection(會有Bounding Box)跟Segmentation(會有像素級的定位與分類)
+
 建議用uv或python venv來安裝  
 以免跟其他專案的python pkg(python package, 即lib)相衝突  
 不同的環境也容易與ultralytics衝突  
@@ -64,11 +72,18 @@ source .venv/bin/activate
 
 # 準備訓練影像資料
 ## RoboFlow
-可自動畫框, 影像argument, 雲端訓練等等  
+RoboFlow為線上可用於dataset準備, 訓練, infer測試的平台  
+但如果沒有付錢訂閱的話, 上傳多媒體檔案會被無償公開, 因此重要的資料請勿上傳到RoboFlow  
+
+RoboFlow可自動畫框, 影像argument, 雲端訓練等等  
 官網註冊就能使用  
+
 免費版的credit很少, 自動畫框跟推測只有1000/month, 雲端訓練只有3/month   
 但付費版的自動畫框跟推測也只有10000/month, 訓練10/month  
 如果要再加購的話, 一個框約0.75~0.9台幣[2024.4.10當下]  
+
+網站最大的好處就是基於分享的觀念, 可以下載別人畫好的圖片標籤檔dataset  
+直接下載通常就能訓練, 很適合拿來練習  
 
 ## RoboFlow - Export
 從RoboFlow下載訓練資料圖片跟標記檔, 通常就能夠直接拿來訓練  
